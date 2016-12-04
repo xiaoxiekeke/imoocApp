@@ -1,0 +1,24 @@
+dependencies: \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Executors/RCTJSCExecutor.mm \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Executors/RCTJSCExecutor.h \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Base/RCTJavaScriptExecutor.h \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Base/RCTBridgeModule.h \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Base/RCTDefines.h \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Base/RCTInvalidating.h \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Base/RCTAssert.h \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Base/RCTBridge+Private.h \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Base/RCTBridge.h \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Base/RCTBridgeDelegate.h \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Base/RCTJavaScriptLoader.h \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Base/RCTFrameUpdate.h \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Modules/RCTDevMenu.h \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Base/RCTLog.h \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Profiler/RCTProfile.h \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Base/RCTPerformanceLogger.h \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Base/RCTUtils.h \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Profiler/RCTJSCProfiler.h \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Modules/RCTRedBox.h \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Base/RCTErrorCustomizer.h \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Modules/RCTSourceCode.h \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Executors/RCTJSCWrapper.h \
+  /Users/xieke/Desktop/xiaoke/react-native/imoocApp/node_modules/react-native/React/Executors/RCTJSCErrorHandling.h
