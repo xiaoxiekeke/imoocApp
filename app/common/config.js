@@ -13,6 +13,8 @@ module.exports={
     creations:'api/creations',
     comments:'api/comments',
     up:'api/up',
+    update:'api/update',
+    signature:'api/signature',
     signup:'api/u/signup',
     verify:'api/u/verify'
   }
