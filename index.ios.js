@@ -59,6 +59,13 @@ var imoocApp =React.createClass({
     this._asyncAppStatus()
   },
 
+  _logout(){
+    AsyncStorage.removeItem('user')
+    this.setState({
+      logined:false,
+      user:null
+    })
+  },
   _asyncAppStatus(){
     var that = this
     AsyncStorage.getItem('user')
@@ -137,7 +144,7 @@ var imoocApp =React.createClass({
               selectedTab: 'account'
             })
           }}>
-          <Account />
+          <Account user={this.state.user} logout={this._logout} />
         </Icon.TabBarItem>
       </TabBarIOS>
     );

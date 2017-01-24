@@ -9,13 +9,16 @@ import {
   TouchableOpacity,
   Dimensions,
   AsyncStorage,
-  AlertIOS
+  AlertIOS,
+  Modal,
+  TextInput
 } from 'react-native';
 import config from '../common/config';
 import request from '../common/request';
 import sha1 from 'sha1';
 import Icon from 'react-native-vector-icons/Ionicons';
 import * as Progress from 'react-native-progress'
+var Button =require('react-native-button').default;
 var width=Dimensions.get('window').width;
 var photoOptions = {
   title: '选择头像',
@@ -59,8 +62,21 @@ var Account=React.createClass({
     return{
       user:user,
       avatarProgress:0,
-      avatarUploading:false
+      avatarUploading:false,
+      modalVisible:false
     }
+  },
+
+  _edit(){
+    this.setState({
+      modalVisible:true
+    })
+  },
+
+  _closeModal(){
+    this.setState({
+      modalVisible:false
+    })
   },
 
   _pickPhoto(){
@@ -193,6 +209,7 @@ var Account=React.createClass({
           that.setState({
             user:user
           },function(){
+            that._closeModal()
             AsyncStorage.setItem('user',JSON.stringify(user))
           })
         }
@@ -220,6 +237,22 @@ var Account=React.createClass({
     })
   },
 
+  _changeUserState(key, value){
+    var user = this.state.user
+    user[key] = value
+    this.setState({
+      user:user
+    })
+  },
+
+  _submit(){
+    this._asyncUser()
+  },
+
+  _logout(){
+    this.props.logout()
+  },
+
   render(){
     var user = this.state.user
     return (
@@ -228,7 +261,7 @@ var Account=React.createClass({
         <View style={styles.toolbar}>
           <Text style={styles.toolbarTitle}>狗狗的账户
           </Text>
-          <Text style={styles.toolbarExtra}>编辑</Text>
+          <Text style={styles.toolbarExtra} onPress={this._edit}>编辑</Text>
         </View>
 
         {
@@ -273,6 +306,76 @@ var Account=React.createClass({
             </View>
           </TouchableOpacity>
         }
+        <Modal animationType="fade"
+          visible={this.state.modalVisible}
+          >
+          <View style={styles.modalContainer}>
+            <Icon
+              name='ios-close-outline'
+              style={styles.closeIcon}
+              onPress={this._closeModal} />
+              <View style={styles.fieldItem}>
+                <Text style={styles.label}> 昵称</Text>
+                <TextInput placeholder={'输入你的昵称'}
+                    style={styles.inputField}
+                    autoCapitalize={'none'}
+                    autoCorrect={false}
+                    defaultValue={user.nickname}
+                    onChangeText={(text)=>{
+                      this._changeUserState('nickname',text)
+                    }}/>
+              </View>
+              <View style={styles.fieldItem}>
+                <Text style={styles.label}> 品种</Text>
+                <TextInput placeholder={'输入你的品种'}
+                    style={styles.inputField}
+                    autoCapitalize={'none'}
+                    autoCorrect={false}
+                    defaultValue={user.breed}
+                    onChangeText={(text)=>{
+                      this._changeUserState('breed',text)
+                    }}/>
+              </View>
+              <View style={styles.fieldItem}>
+                <Text style={styles.label}> 年龄</Text>
+                <TextInput placeholder={'输入你的年龄'}
+                    style={styles.inputField}
+                    autoCapitalize={'none'}
+                    autoCorrect={false}
+                    defaultValue={user.age}
+                    onChangeText={(text)=>{
+                      this._changeUserState('age',text)
+                    }}/>
+              </View>
+              <View style={styles.fieldItem}>
+                <Text style={styles.label}> 性别</Text>
+                <Icon.Button
+                  onPress={()=>{
+                    this._changeUserState('gender','male')
+                  }}
+                  style={[
+                    styles.gender,
+                    user.gender==='male'&&styles.genderChecked
+                  ]}
+                  name='ios-paw'>男</Icon.Button>
+                <Icon.Button
+                  onPress={()=>{
+                    this._changeUserState('gender','female')
+                  }}
+                  style={[
+                    styles.gender,
+                    user.gender==='female'&&styles.genderChecked
+                  ]}
+                  name='ios-paw-outline'>女</Icon.Button>
+              </View>
+              <Button
+                style={styles.btn}
+                onPress={this._submit}>保存</Button>
+          </View>
+        </Modal>
+        <Button
+          style={styles.btn}
+          onPress={this._logout}>退出登录</Button>
       </View>
     )
   }
@@ -340,6 +443,56 @@ var styles = StyleSheet.create({
     fontSize:24,
     backgroundColor:'#fff',
     borderRadius: 8,
+  },
+  modalContainer:{
+    flex:1,
+    paddingTop:50,
+    backgroundColor:'#fff'
+  },
+  fieldItem:{
+    flexDirection:'row',
+    justifyContent:'space-between',
+    alignItems:'center',
+    height:50,
+    paddingLeft:15,
+    paddingRight:15,
+    borderColor:'#eee',
+    borderBottomWidth:1
+  },
+  label:{
+    color:'#ccc',
+    marginRight:10
+  },
+  closeIcon:{
+    position:'absolute',
+    width:40,
+    height:40,
+    fontSize:32,
+    right:20,
+    top:30,
+    color:'#ee735c'
+  },
+  gender:{
+    backgroundColor:'#ccc',
+  },
+  genderChecked:{
+    backgroundColor:'#ee735c'
+  },
+  inputField:{
+    flex:1,
+    height:50,
+    color:'#666',
+    fontSize:14
+  },
+  btn:{
+    padding:10,
+    margin:10,
+    marginTop:25,
+    backgroundColor:'transparent',
+    borderColor:'#ee735c',
+    borderWidth:1,
+    borderRadius:4,
+    color:'#ee735c'
   }
 
 });

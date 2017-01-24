@@ -386,7 +386,7 @@ var Detail=React.createClass({
           automaticallyAdjustContentInsets ={false}
         />
 
-        <Modal animationType={'fade'}
+        <Modal 
                visible={this.state.modalVisible}
                onRequestClose={() => {this._setModalVisible(false)}}>
                <View style={styles.modalContainer}>
