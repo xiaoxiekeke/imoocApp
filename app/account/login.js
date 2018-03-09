@@ -35,6 +35,7 @@ var Login=React.createClass({
     })
   },
   _sendVerifyCode(){
+    //发验证码
     var that=this;
     var phoneNumber = this.state.phoneNumber
     if(!phoneNumber){
@@ -49,15 +50,18 @@ var Login=React.createClass({
     .then((data) => {
       if (data&&data.success) {
         that._showVerifyCode()
+        AlertIOS.alert(data.msg)
       }else {
         AlertIOS.alert('获取验证码失败，请检查手机号是否正确')
       }
     })
     .catch((err)=>{
       AlertIOS.alert('获取验证码失败，请检查网络是否良好')
+      that._showVerifyCode()
     })
   },
   _submit(){
+    //提交验证码和手机号
     var that=this;
     var phoneNumber = this.state.phoneNumber
     var verifyCode = this.state.verifyCode
@@ -72,7 +76,7 @@ var Login=React.createClass({
     request.post(verifyURL,body)
     .then((data) => {
       if (data&&data.success) {
-        console.log('login ok');
+        console.log(data)
         that.props.afterLogin(data.data)
       }else {
         AlertIOS.alert('获取验证码失败，请检查手机号是否正确')

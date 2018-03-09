@@ -50,7 +50,7 @@ var imoocApp =React.createClass({
 
   getInitialState: function() {
     return {
-      selectedTab: 'account',
+      selectedTab: 'edit',
       logined:false
     };
   },

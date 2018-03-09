@@ -33,15 +33,9 @@ var photoOptions = {
     path: 'images'
   }
 };
-var CLOUDINARY = {
-  cloud_name: 'xiaoke',
-  api_key: '257192715654639',
-  api_secret: 'YCkXEZjQFCzUgHJIwC1fyIpeGqg',
-  base:'http://res.cloudinary.com/xiaoke',
-  image:'https://api.cloudinary.com/v1_1/xiaoke/image/upload',
-  video:'https://api.cloudinary.com/v1_1/xiaoke/video/upload',
-  audio:'https://api.cloudinary.com/v1_1/xiaoke/raw/upload'
-}
+
+// CLOUDINARY配置
+var CLOUDINARY = config.cloudinary
 
 //生成图片的标准地址
 function avatar(id,type){
@@ -52,7 +46,13 @@ function avatar(id,type){
   if (id.indexOf('data:image')> -1){
     return id
   }
-  return CLOUDINARY.base+'/'+type+'/upload/'+id
+
+  if (id.indexOf('avatar/')> -1){
+    return CLOUDINARY.base+'/'+type+'/upload/'+id
+  }
+
+  return 'http://p2znp5dtk.bkt.clouddn.com/'+id
+  
 }
 
 var ImagePicker = require('NativeModules').ImagePickerManager;
@@ -79,6 +79,19 @@ var Account=React.createClass({
     })
   },
 
+  _getQiniuToken(){
+    var accessToken=this.state.user.accessToken
+    var signatureURL=config.api.base+config.api.signature
+    return request.post(signatureURL,{
+      accessToken:accessToken,
+      type:'avatar',
+      cloud:"qiniu"
+    })
+    .catch((err) => {
+      console.log(err);
+    })
+  },
+
   _pickPhoto(){
     var that =this
     ImagePicker.showImagePicker(photoOptions, (res) => {
@@ -87,47 +100,61 @@ var Account=React.createClass({
         return
       }
 
-
-      var avatarData = 'data:image/jpeg;base64,' + res.data
-
-      // 修改avatar数据
-      // var user = that.state.user
-      // user.avatar=avatarData
-      // that.setState({
-      //   user:user
-      // })
-
+      // 七牛
       var timestamp=Date.now();//时间戳
-      var tags='app,avatar'
-      var folder='avatar'
-      var signatureURL=config.api.base+config.api.signature
-      var accessToken=this.state.user.accessToken
-      request.post(signatureURL,{
-        accessToken:accessToken,
-        timestamp:timestamp,
-        folder:folder,
-        tags:tags,
-        type:'avatar'
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .then((data)=>{
-        if (data && data.success) {
-          //模拟生成签名值，应该在后端进行的
-          var signature = 'folder=' + folder + '&tags=' + tags + '&timestamp=' + timestamp + CLOUDINARY.api_secret
-          signature = sha1(signature)
-          var body = new FormData()
-          body.append('folder', folder)
-          body.append('signature', signature)
-          body.append('tags', tags)
-          body.append('timestamp', timestamp)
-          body.append('api_key', CLOUDINARY.api_key)
-          body.append('resource_type', 'image')
-          body.append('file', avatarData)
-          that._upload(body)
-        }
-      })
+      var uri=res.uri
+
+      that._getQiniuToken()
+          .then(function(data){
+            if (data && data.success) {
+              //从后台拿到生成好的签名
+              var token=data.data.token
+              var key=data.data.key
+              var body = new FormData()
+              body.append('token', token)
+              body.append('resource_type', 'image')
+              body.append('key',key)
+              body.append('file', {
+                type:'image/jpeg',
+                uri:uri,
+                key:key
+              })
+              that._upload(body)
+            }
+          })
+
+      
+      // cloudinary
+      // var avatarData = 'data:image/jpeg;base64,' + res.data
+      // var timestamp=Date.now();//时间戳
+      // var signatureURL=config.api.base+config.api.signature
+      // var accessToken=this.state.user.accessToken
+      // var folder='avatar'
+      // var tags='app,avatar'
+      // request.post(signatureURL,{
+      //   accessToken:accessToken,
+      //   timestamp:timestamp,
+      //   type:'avatar'
+      // })
+      // .catch((err) => {
+      //   console.log(err);
+      // })
+      // .then((data)=>{
+      //   console.log(data)
+      //   if (data && data.success) {
+      //     //从后台拿到生成好的签名
+      //     var signature=data.data
+      //     var body = new FormData()
+      //     body.append('signature', signature)
+      //     body.append('folder', folder)
+      //     body.append('tags', tags)
+      //     body.append('timestamp', timestamp)
+      //     body.append('api_key', CLOUDINARY.api_key)
+      //     body.append('resource_type', 'image')
+      //     body.append('file', avatarData)
+      //     that._upload(body)
+      //   }
+      // })
 
     });
   },
@@ -136,9 +163,15 @@ var Account=React.createClass({
   _upload(body){
     var that = this
     var xhr = new XMLHttpRequest()
-    var url = CLOUDINARY.image
+    
+    // CLOUDINARY地址
+    // var url = CLOUDINARY.image
+
+    //七牛地址
+    var url = config.qiniu.upload
+
     xhr.open('POST',url)
-    console.log(body)
+
     //上传之前设置状态
     this.setState({
       avatarUploading:true,
@@ -165,10 +198,15 @@ var Account=React.createClass({
         console.log('parse fails')
       }
 
-      //如果返回public_id则表示上传成功
-      if (response&&response.public_id) {
+      if(response){
         var user=this.state.user
-        user.avatar = response.public_id  //获取图片标准地址
+        if(response.public_id){
+          user.avatar = response.public_id  //cloudinary获取图片标准地址
+        }
+        if(response.key){
+          user.avatar = response.key  //七牛获取图片标准地址
+        }
+
         //上传之后设置状态
         that.setState({
           user:user,
@@ -178,6 +216,7 @@ var Account=React.createClass({
         // 向后台同步用户数据
         that._asyncUser(true)
       }
+
     }
 
     //设置上传进度
@@ -199,8 +238,10 @@ var Account=React.createClass({
     var user = this.state.user
     if(user && user.accessToken){
       var url = config.api.base + config.api.update
+      console.log(user)
       request.post(url,user)
       .then((data)=>{
+        console.log(data)
         if (data && data.success) {
           var user = data.data
           if(isAvatar){
@@ -277,10 +318,10 @@ var Account=React.createClass({
                     showsText={true}
                     size={75}
                     color={'#ee735c'}
-                    progress={this.state.avatarProgress}
-                     />
-                  :<Image source={{uri:avatar(user.avatar,'image')}}
-                          style={styles.avatar}/>
+                    progress={this.state.avatarProgress}/>
+                  :<Image 
+                    source={{uri:avatar(user.avatar,'image')}}
+                    style={styles.avatar}></Image>
                 }
 
               </View>
@@ -298,8 +339,7 @@ var Account=React.createClass({
                   showsText={true}
                   size={75}
                   color={'#ee735c'}
-                  progress={this.state.avatarProgress}
-                   />
+                  progress={this.state.avatarProgress} />
                 :<Icon name='ios-cloud-upload-outline'
                       style={styles.plusIcon} />
               }
